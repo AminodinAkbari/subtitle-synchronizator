@@ -1,52 +1,64 @@
+#Imports
 import srt
-from datetime import datetime , timedelta
 from csv_creator import creator
+from uttils import remove_microsecond , final_list_creator
 
-english_sub = open('/home/Aminodin/Public/en.vtt' , 'r')
-other_sub   = open('/home/Aminodin/Public/de.vtt' , 'r')
+print('Welcom To Subtitle synchronizator !')
+print('Please Add Your English and Deutsch Subtitles :')
+print('-----------------------------------------------')
+
+"""Taking Values (vtt files) From User"""
+en_address = input("English Subtitle Address :")
+de_address = input("Deutsch Subtitle Address  :")
 
 
-def remove_microsecond(arg):
-	date_string = str(arg)
-	date_string = date_string[:7]
-	final_date 	= datetime.strptime(date_string , '%H:%M:%S')
-	delta 		= timedelta(hours=final_date.hour , minutes=final_date.minute , seconds=final_date.second)
-	return delta
+"""Found The Files (if exists)"""
+try:
+	english_sub = open(str(en_address) , 'r')
+except:
+	raise ValueError ('English VTT not Found')
 
-def better_english_content(string):
-	data = string.removesuffix('</c.mono_sans></c.white>')
-	data = data.removeprefix('<c.white><c.mono_sans>')
-	return data
+try:
+	other_sub   = open(str(de_address) , 'r')
+except:
+	raise ValueError ('Deutsch VTT not Found')
 
-def better_germany_content(string):
-	data = string.removesuffix('</c.bg_transparent>')
-	data = data.removeprefix('<c.bg_transparent>')
-	return data
 
+
+"""Parsing To list"""
 en_list = list(srt.parse(english_sub))
 de_list = list(srt.parse(other_sub))
 
 
+
+
+"""Making Microseconds Zero For English Subtitle"""
 for i in en_list:
 	i.start = remove_microsecond(i.start)
 	i.end = remove_microsecond(i.end)
 
+"""Making Microseconds Zero For Deutsch Subtitle"""
 for i in de_list:
 	i.start = remove_microsecond(i.start)
 	i.end = remove_microsecond(i.end)
 
+
+
+"""Headers for CSV File"""
 english_titles = ['Time' , 'English']
 de_titles = ['Time' , 'Deutsch (German)']
 
-final_list = []
-for i in en_list:
-	time = str(i.start)
-	final_list.append([time , better_english_content(i.content)])
+
+
+
+"""Making CSV File ==> English Subtitle"""
+final_list = final_list_creator(en_list)
 creator(english_titles , final_list , 'english_csv')
 
-final_list = []
-for i in de_list:
-	time = str(i.start)
-	final_list.append([time , better_germany_content(i.content)])
 
+"""Making CSV File ==> Deutsch Subtitle"""
+final_list = final_list_creator(de_list)
 creator(de_titles , final_list , 'german_csv')
+
+print("Done !")
+print("Now You Can See The Results Files In 'Docs' Folder")

@@ -8,26 +8,41 @@ print('Please Add Your English and Deutsch Subtitles :')
 print('-----------------------------------------------')
 
 """Taking Values (vtt files) From User"""
-en_address = input("English Subtitle Address :")
-de_address = input("Deutsch Subtitle Address  :")
+starting = input("Wanna Use Default Files in This Folder? (en.vtt & de.vtt) Type(Y):yes or (N):")
+if starting.lower() == 'n':
+	en_address = input("English Subtitle Address :")
+	de_address = input("Deutsch Subtitle Address  :")
+
+	"""Found The Files (if exists)"""
+	try:
+		english_sub = open(str(en_address) , 'r')
+	except:
+		raise ValueError ('English VTT not Found')
+
+	try:
+		other_sub   = open(str(de_address) , 'r')
+	except:
+		raise ValueError ('Deutsch VTT not Found')
+
+elif starting.lower() == 'y':
+
+	from pathlib import Path
+	en = Path(__file__).with_name('en.vtt')
+	de = Path(__file__).with_name('de.vtt')
+
+	en_address = open(en , 'r')
+	de_address = open(de , 'r')
+
+else:
+	raise ValueError("Wrong Command")
 
 
-"""Found The Files (if exists)"""
-try:
-	english_sub = open(str(en_address) , 'r')
-except:
-	raise ValueError ('English VTT not Found')
-
-try:
-	other_sub   = open(str(de_address) , 'r')
-except:
-	raise ValueError ('Deutsch VTT not Found')
 
 
 
 """Parsing To list"""
-en_list = list(srt.parse(english_sub))
-de_list = list(srt.parse(other_sub))
+en_list = list(srt.parse(en_address))
+de_list = list(srt.parse(de_address))
 
 
 
